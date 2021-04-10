@@ -1,0 +1,174 @@
+html
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+
+    <title>countries and weather report!</title>
+</head>
+
+<body>
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+    <script src="rescountry.js"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js" integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js" integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc" crossorigin="anonymous"></script>
+    -->
+</body>
+
+</html>
+
+js
+
+
+// var container = document.createElement('div');
+// container.setAttribute('class', 'container');
+
+// var row = document.createElement('div');
+// row.setAttribute('class', 'row');
+// row.setAttribute('id', 'rowId');
+
+var apiKey = 'eebe6fcd6085cff56d89256268d87c6e'
+
+//get api using fetch()
+
+fetch('https://restcountries.eu/rest/v2/all').then((response) => {
+    return response.json();
+}).then((result) => {
+    console.log(result)
+
+    var container = document.createElement('div');
+    container.setAttribute('class', 'container-fluid bg-secondary mt-2 pt-2');
+
+    var row = document.createElement('div');
+    row.setAttribute('class', 'row');
+    row.setAttribute('id', 'rowId');
+
+    container.append(row);
+
+    //for loop to get the country details and create the cards
+    result.forEach(element => {
+        row.append(countryCard(element));
+    });
+
+
+    document.body.append(container);
+
+}).catch((err) => {
+    console.error(err);
+});
+
+
+//function to create card
+function countryCard(obj) {
+    let outerDiv = document.createElement('div');
+    outerDiv.setAttribute('class', 'col-12 col-md-6 col-lg-4 col-sm-12 align-bottom');
+    outerDiv.style = 'height:412px;'
+
+    let card = document.createElement('div')
+    card.setAttribute('class', 'card rounded');
+    card.style = ' height: 99%;'
+
+    let cardHeader = document.createElement('div')
+    cardHeader.setAttribute('class', 'card-header text-center bg-dark text-light');
+    cardHeader.innerHTML = obj.name;
+
+
+
+
+    let cardBody = document.createElement('div')
+    cardBody.setAttribute('class', 'card-body text-center rounded');
+
+    let cardImage = document.createElement('img');
+    cardImage.src = obj.flag;
+    cardImage.alt = obj.name;
+    // cardImage.setAttribute('class', 'card-img-top img-fluid');
+    cardImage.style = 'width:300px;height:224px;'
+
+    cardBody.append(cardImage);
+
+    let pTag = document.createElement('p')
+    pTag.setAttribute('class', 'card-text');
+
+
+    let tempDiv = document.createElement('div')
+    tempDiv.setAttribute('class', 'col-lg-12 col-sm-12 text-center pt-1');
+    tempDiv.innerText = 'Capital: ' + obj.capital;
+
+    let tempDiv1 = document.createElement('div')
+    tempDiv1.setAttribute('class', 'col-lg-12 col-sm-12 text-center ');
+    tempDiv1.innerText = 'Region: ' + obj.region;
+
+    let tempDiv2 = document.createElement('div')
+    tempDiv2.setAttribute('class', 'col-lg-12 col-sm-12 text-center ');
+    tempDiv2.innerText = 'Country Code: ' + obj.callingCodes[0];
+
+
+    let tempDiv3 = document.createElement('div')
+    tempDiv3.setAttribute('class', 'col-lg-12 col-sm-12 text-center pt-1');
+
+    let tempButton = document.createElement('button');
+    tempButton.setAttribute('class', 'btn btn-primary');
+    tempButton.setAttribute('data-name', obj.capital);
+    tempButton.addEventListener('click', (event) => {
+        fetch('https://api.openweathermap.org/data/2.5/weather?q=' + event.target.dataset.name + '&appid=' + apiKey).then((response) => {
+            return response.json();
+        }).then((result) => {
+            alert('Weather Info for ' + event.target.dataset.name + ' :' + JSON.stringify(result));
+        }).catch((err) => {
+            console.error(err);
+        })
+        console.log(event.target.dataset.name);
+    });
+    tempButton.innerText = 'View Weather';
+    tempDiv3.append(tempButton);
+
+
+
+    pTag.append(tempDiv, tempDiv1, tempDiv2, tempDiv3);
+
+    cardBody.append(pTag);
+
+    card.append(cardHeader, cardBody);
+
+    outerDiv.append(card);
+
+
+    return outerDiv;
+
+
+
+
+
+}
+
+function getCountryName(event) {
+
+    fetch('https://api.openweathermap.org/data/2.5/weather?q=' + event.target.dataset.name + '&appid=' + apiKey).then((response) => {
+        return response.json();
+    }).then((result) => {
+        alert('Weather Info :' + result);
+    }).catch((err) => {
+        console.error(err);
+    })
+    console.log(event.target.dataset.name);
+
+}
